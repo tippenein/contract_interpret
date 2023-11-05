@@ -5,13 +5,14 @@ const { apiKey: etherscanApiKey } = process.env;
 const { apiKey: openaiApiKey } = process.env;
 
 const getContractSourceCode = async (contractAddress) => {
-  // TODO You can add a caching mechanism here if needed
+  // TODO add redis
   const cachedCode = false
   if (cachedCode) {
     return cachedCode;
   } else {
     try {
       // Define the Etherscan API endpoint for contract source code
+      console.log(etherscanApiKey)
       const etherscanUrl = `https://api.etherscan.io/api?module=contract&action=getsourcecode&address=${contractAddress}&apikey=${etherscanApiKey}`;
 
       // Send a GET request to Etherscan API
@@ -20,9 +21,10 @@ const getContractSourceCode = async (contractAddress) => {
       // Check if the request was successful
       if (response.status === 200) {
         const data = response.data;
+        console.log(data.status)
         if (data.status === "1" && data.result.length > 0) {
           const sourceCode = data.result[0].SourceCode;
-          db[contractAddress] = sourceCode;
+          // db[contractAddress] = sourceCode;
           return sourceCode;
         } else {
           return "Contract source code not found on Etherscan.";
@@ -47,9 +49,9 @@ const extractSourceCode = (inputText) => {
   for (const line of lines) {
     // Check if the line contains the end comment
     if (line.includes("GNU GENERAL PUBLIC LICENSE")) {
-      break; // Stop when the end comment is found
+      break;
     }
-    sourceCodeLines.push(line); // Add the line to the source code
+    sourceCodeLines.push(line);
   }
 
   // Combine the source code lines into a single string
@@ -58,9 +60,8 @@ const extractSourceCode = (inputText) => {
   return sourceCode;
 };
 
-export default async function handler(req, res) {
-  const { contractAddress } = req.query;
-
+async function handler(req, res) {
+  const { address: contractAddress } = req.body;
   if (!contractAddress) {
     res.status(400).json({ error: 'Contract address is required' });
     return;
@@ -69,6 +70,7 @@ export default async function handler(req, res) {
   try {
     const rawSource = await getContractSourceCode(contractAddress);
     const sourceCode = extractSourceCode(rawSource)
+    console.log(sourceCode)
 
     const systemPrompt = "You are a web3 developer skilled in explaining complex smart contracts in natural language";
     // Define the prompt for OpenAI
@@ -76,8 +78,9 @@ export default async function handler(req, res) {
 
     // Initialize the OpenAI client
     openai.apiKey = openaiApiKey;
+    console.log(openaiApiKey)
 
-    // Call the OpenAI GPT-3.5 model to interpret the code
+    // Call the OpenAI to interpret the code
     const response = await openai.ChatCompletion.create({
       model: "gpt-4",
       messages: [
@@ -94,3 +97,12 @@ export default async function handler(req, res) {
     res.status(500).json({ error: `Server error: ${error.message}` });
   }
 }
+
+export default handler;
+// export const config = {
+//   api: {
+//     bodyParser: false, // Defaults to true. Setting this to false disables body parsing and allows you to consume the request body as stream or raw-body.
+//     responseLimit: false, // Determines how much data should be sent from the response body. It is automatically enabled and defaults to 4mb.
+//     externalResolver: true, // Disables warnings for unresolved requests if the route is being handled by an external resolver like Express.js or Connect. Defaults to false.
+//   },
+// }
