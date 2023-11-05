@@ -1,13 +1,14 @@
 import axios from 'axios';
-import openai from 'openai';
+import OpenAI from 'openai';
+import { kv } from "@vercel/kv";
 
 const { apiKey: etherscanApiKey } = process.env;
 const { apiKey: openaiApiKey } = process.env;
 
-const getContractSourceCode = async (contractAddress) => {
-  // TODO add redis
-  const cachedCode = false
+const getContractSourceCode = async (res, contractAddress) => {
+  const cachedCode = await kv.get(contractAddress)
   if (cachedCode) {
+    console.log("cached code", cachedCode)
     return cachedCode;
   } else {
     try {
@@ -24,16 +25,17 @@ const getContractSourceCode = async (contractAddress) => {
         console.log(data.status)
         if (data.status === "1" && data.result.length > 0) {
           const sourceCode = data.result[0].SourceCode;
-          // db[contractAddress] = sourceCode;
+          await kv.srem(contractAddress, sourceCode)
+          await kv.set(contractAddress, sourceCode)
           return sourceCode;
         } else {
-          return "Contract source code not found on Etherscan.";
+          res.status(404).json({ error: "Failed to find contract's source code"});
         }
       } else {
-        return "Failed to fetch contract source code from Etherscan.";
+        res.status(404).json({ error: "Failed to find contract"});
       }
     } catch (error) {
-      return `Error: ${error.message}`;
+      res.status(500).json({ error: `Error: ${error.message}`});;
     }
   }
 };
@@ -68,31 +70,44 @@ async function handler(req, res) {
   }
 
   try {
-    const rawSource = await getContractSourceCode(contractAddress);
+    const rawSource = await getContractSourceCode(res, contractAddress);
+    console.log("after raw")
     const sourceCode = extractSourceCode(rawSource)
     console.log(sourceCode)
 
-    const systemPrompt = "You are a web3 developer skilled in explaining complex smart contracts in natural language";
-    // Define the prompt for OpenAI
-    const prompt = `Please interpret the following Solidity contract source code:\n\n${sourceCode}`;
+    // key for fetching a cached openai interpretation
+    const interpretedKey = "intrp-" + contractAddress
 
-    // Initialize the OpenAI client
-    openai.apiKey = openaiApiKey;
-    console.log(openaiApiKey)
+    const cachedInterpretation = await kv.get(interpretedKey)
+    if (cachedInterpretation) {
+      console.log("cached interpretation", cachedInterpretation)
+      res.status(200).json({ sourceCode, cachedInterpretation });
+      return ;
+    } else {
+      const systemPrompt = "You are a web3 developer skilled in explaining complex smart contracts in natural language";
+      // Define the prompt for OpenAI
+      const prompt = `Please interpret the following Solidity contract source code:\n\n${sourceCode}`;
 
-    // Call the OpenAI to interpret the code
-    const response = await openai.ChatCompletion.create({
-      model: "gpt-4",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: prompt },
-      ],
-    });
+      // Initialize the OpenAI client
+      const openai = new OpenAI({
+        apiKey: openaiApiKey
+      });
 
-    // Get the interpretation
-    const interpretation = response.choices[0].message.content;
+      // Call the OpenAI to interpret the code
+      const response = await openai.chat.completions.create({
+        model: "gpt-4",
+        // stream: true,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt },
+        ],
+      });
 
-    res.status(200).json({ sourceCode, interpretation });
+      // Get the interpretation
+      const interpretation = response.choices[0].message.content;
+      kv.set(interpretedKey, interpretation)
+      res.status(200).json({ sourceCode, interpretation });
+    }
   } catch (error) {
     res.status(500).json({ error: `Server error: ${error.message}` });
   }
