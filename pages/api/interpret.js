@@ -5,6 +5,10 @@ import { kv } from "@vercel/kv";
 const { apiKey: etherscanApiKey } = process.env;
 const { apiKey: openaiApiKey } = process.env;
 
+// example with source 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+
+//example with compiled source https://etherscan.io/address/0x2ec705d306b51e486b1bc0d6ebee708e0661add1#code
+
 const getContractSourceCode = async (res, contractAddress) => {
   const cachedCode = await kv.get(contractAddress)
   if (cachedCode) {
@@ -25,7 +29,6 @@ const getContractSourceCode = async (res, contractAddress) => {
         console.log(data.status)
         if (data.status === "1" && data.result.length > 0) {
           const sourceCode = data.result[0].SourceCode;
-          await kv.srem(contractAddress, sourceCode)
           await kv.set(contractAddress, sourceCode)
           return sourceCode;
         } else {
@@ -62,32 +65,20 @@ const extractSourceCode = (inputText) => {
   return sourceCode;
 };
 
-async function handler(req, res) {
-  const { address: contractAddress } = req.body;
-  if (!contractAddress) {
-    res.status(400).json({ error: 'Contract address is required' });
-    return;
-  }
+const interpret = async (contractAddress, sourceCode) => {
+  // key for fetching a cached openai interpretation
+  const interpretedKey = "intrp-" + contractAddress;
 
-  try {
-    const rawSource = await getContractSourceCode(res, contractAddress);
-    console.log("after raw")
-    const sourceCode = extractSourceCode(rawSource)
-    console.log(sourceCode)
+  const cachedInterpretation = await kv.get(interpretedKey)
 
-    // key for fetching a cached openai interpretation
-    const interpretedKey = "intrp-" + contractAddress
-
-    const cachedInterpretation = await kv.get(interpretedKey)
-    if (cachedInterpretation) {
-      console.log("cached interpretation", cachedInterpretation)
-      res.status(200).json({ sourceCode, cachedInterpretation });
-      return ;
-    } else {
-      const systemPrompt = "You are a web3 developer skilled in explaining complex smart contracts in natural language";
-      // Define the prompt for OpenAI
-      const prompt = `Please interpret the following Solidity contract source code:\n\n${sourceCode}`;
-
+  if (cachedInterpretation) {
+    console.log("cached interpretation", cachedInterpretation)
+    return cachedInterpretation;
+  } else {
+    const systemPrompt = "You are a web3 developer skilled in explaining complex smart contracts in natural language";
+    // Define the prompt for OpenAI
+    const prompt = `Please interpret the following Solidity contract source code:\n\n${sourceCode}`;
+    try {
       // Initialize the OpenAI client
       const openai = new OpenAI({
         apiKey: openaiApiKey
@@ -106,18 +97,33 @@ async function handler(req, res) {
       // Get the interpretation
       const interpretation = response.choices[0].message.content;
       kv.set(interpretedKey, interpretation)
-      res.status(200).json({ sourceCode, interpretation });
+      return interpretation
+
+    } catch (error) {
+      throw Error(`Server error: ${error.message}`);
     }
+
+  }
+}
+
+async function handler(req, res) {
+  const { address: contractAddress } = req.body;
+  if (!contractAddress) {
+    res.status(400).json({ error: 'Contract address is required' });
+    return;
+  }
+
+  try {
+    const rawSource = await getContractSourceCode(res, contractAddress);
+    console.log("after raw")
+    const sourceCode = extractSourceCode(rawSource)
+    console.log(sourceCode)
+
+    const interpretation = await interpret(contractAddress, sourceCode)
+    res.status(200).json({ sourceCode, interpretation });
   } catch (error) {
     res.status(500).json({ error: `Server error: ${error.message}` });
   }
 }
 
 export default handler;
-// export const config = {
-//   api: {
-//     bodyParser: false, // Defaults to true. Setting this to false disables body parsing and allows you to consume the request body as stream or raw-body.
-//     responseLimit: false, // Determines how much data should be sent from the response body. It is automatically enabled and defaults to 4mb.
-//     externalResolver: true, // Disables warnings for unresolved requests if the route is being handled by an external resolver like Express.js or Connect. Defaults to false.
-//   },
-// }

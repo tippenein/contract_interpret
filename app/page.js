@@ -67,7 +67,10 @@ export default function Home() {
                 setContractAddress(e.target.value)
               }
             />
-            <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4" type="submit" disabled={loading}>
+            <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4"
+              type="submit"
+              disabled={loading}
+              >
               Interpret
             </button>
           </form>
@@ -82,14 +85,17 @@ export default function Home() {
             </div>
           )}
         </div>
-        <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-lg lg:flex">
-          {sourceCode && showSourceCode && (
-            <div>
-              <h2>Contract Source Code:</h2>
-              <pre>{sourceCode}</pre>
-            </div>
-          )}
-        </div>
+        {sourceCode && (
+          <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-lg lg:flex">
+            <button onClick={() => setShowSourceCode(!showSourceCode)}>Toggle source code</button>
+            {showSourceCode && (
+              <div>
+                <h2>Contract Source Code:</h2>
+                <pre>{sourceCode}</pre>
+              </div>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );
