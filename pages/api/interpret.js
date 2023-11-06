@@ -7,7 +7,7 @@ const { apiKey: openaiApiKey } = process.env;
 
 // example with source 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
 
-//example with compiled source https://etherscan.io/address/0x2ec705d306b51e486b1bc0d6ebee708e0661add1#code
+// example with compiled source https://etherscan.io/address/0x2ec705d306b51e486b1bc0d6ebee708e0661add1#code
 
 const getContractSourceCode = async (res, contractAddress) => {
   const cachedCode = await kv.get(contractAddress)
@@ -72,7 +72,7 @@ const interpret = async (contractAddress, sourceCode) => {
   const cachedInterpretation = await kv.get(interpretedKey)
 
   if (cachedInterpretation) {
-    console.log("cached interpretation", cachedInterpretation)
+    console.log("using cached interpretation")
     return cachedInterpretation;
   } else {
     const systemPrompt = "You are a web3 developer skilled in explaining complex smart contracts in natural language";
@@ -98,7 +98,6 @@ const interpret = async (contractAddress, sourceCode) => {
       const interpretation = response.choices[0].message.content;
       kv.set(interpretedKey, interpretation)
       return interpretation
-
     } catch (error) {
       throw Error(`Server error: ${error.message}`);
     }
@@ -117,9 +116,10 @@ async function handler(req, res) {
     const rawSource = await getContractSourceCode(res, contractAddress);
     console.log("after raw")
     const sourceCode = extractSourceCode(rawSource)
-    console.log(sourceCode)
+    console.log("after source code")
 
     const interpretation = await interpret(contractAddress, sourceCode)
+    console.log("after interpretation")
     res.status(200).json({ sourceCode, interpretation });
   } catch (error) {
     res.status(500).json({ error: `Server error: ${error.message}` });

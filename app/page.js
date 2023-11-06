@@ -86,14 +86,16 @@ export default function Home() {
           )}
         </div>
         {sourceCode && (
-          <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-lg lg:flex">
-            <button onClick={() => setShowSourceCode(!showSourceCode)}>Toggle source code</button>
-            {showSourceCode && (
-              <div>
-                <h2>Contract Source Code:</h2>
-                <pre>{sourceCode}</pre>
-              </div>
-            )}
+          <div class-name="container mx-auto">
+            <button className="text-green-500 underline" onClick={() => setShowSourceCode(!showSourceCode)}>Toggle source code</button>
+            <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-lg lg:flex">
+              {showSourceCode && (
+                <div>
+                  <h2>Contract Source Code:</h2>
+                  <pre>{sourceCode}</pre>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </main>
