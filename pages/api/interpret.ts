@@ -177,7 +177,7 @@ async function handler(req: any, res: any) {
     const {rawSource, blockchain} = result;
     const sourceCode = extractSourceCode(rawSource)
     const interpretation = await interpret(res, contractAddress, sourceCode)
-    res.status(200).json({ blockchain, sourceCode, interpretation });
+    res.status(200).json({ contractAddress, blockchain, sourceCode, interpretation });
   } catch (error: any) {
     res.status(500).json({ error: `Server error: ${error.message}` });
   }

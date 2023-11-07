@@ -16,6 +16,7 @@ interface ResponseData {
   sourceCode: string;
   interpretation: string;
   blockchain: string;
+  contractAddress: string;
 }
 interface ErrorResponse {
   error: string;
@@ -99,12 +100,12 @@ export default function Home() {
       </Head>
       <main className="flex flex-col items-center justify-between p-24">
       <div className="z-10 max-w-5xl w-full items-center justify-center flex flex-col text-lg lg:flex">
-        <h1 className="font-mono mb-4">Contract Interpreter</h1>
+        <h1 className="font-mono font-semibold mb-6">Contract Interpreter</h1>
         <form onSubmit={handleFormSubmit} className="font-mono">
           <div className="flex">
             <input
               type="text"
-              placeholder="Enter contract address"
+              placeholder="Contract address"
               className="flex-grow text-black px-4 py-2 h-12"
               value={contractAddress}
               onChange={(e: any) => {
@@ -122,21 +123,24 @@ export default function Home() {
         </form>
       </div>
       {!interpretation && (<Help copySuccess={copySuccess} handleCopy={handleCopy} setCopySuccess={setCopySuccess} />)}
-      <div className="flex p-24 justify-center items-center">
-        <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-lg lg:flex">
-          {loading && <p>Loading...</p>}
-          {error && <p>{error}</p>}
+      {interpretation && (
+        <h2 className="font-mono text-white font-semibold m-6">{contractAddress}</h2>
+      )}
+      <div className="flex p-12 justify-center items-center">
+        {loading && <p>Loading...</p>}
+        {error && <p>{error}</p>}
+        <div className="max-w-5xl w-full items-center justify-between font-mono text-lg lg:flex">
           {interpretation && sourceCode && (
             <div>
               <div className="flex border-b">
                 <button
-                  className={`py-2 px-4 bg-slate-100  text-black ${activeTab === 'interpretation' ? 'border-b-4 border-green-500' : ''}`}
+                  className={`py-2 px-4 bg-slate-100 border-r-2 text-black ${activeTab === 'interpretation' ? 'border-b-4 border-green-500' : ''}`}
                   onClick={() => setActiveTab('interpretation')}
                 >
                   Interpretation
                 </button>
                 <button
-                  className={`py-2 px-4 bg-slate-100 text-black ${activeTab === 'sourceCode' ? 'border-b-4 border-green-500' : ''}`}
+                  className={`py-2 px-4 bg-slate-100 border-r-2 text-black ${activeTab === 'sourceCode' ? 'border-b-4 border-green-500' : ''}`}
                   onClick={() => setActiveTab('sourceCode')}
                 >
                   Source Code
