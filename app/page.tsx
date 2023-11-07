@@ -7,7 +7,7 @@ let ReactMarkdown: React.ComponentType<{ children: string }> | undefined;
 import('react-markdown').then((module) => {
   ReactMarkdown = module.default || module;
 });
-import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import {Help} from '../components/Help';
@@ -171,7 +171,7 @@ export default function Home() {
                       language={syntaxFor(blockchain.toLowerCase())}
                       style={solarizedlight}
                     >
-                      {sourceCode.toString()}
+                      {sourceCode}
                     </SyntaxHighlighter>
                   </div>
                 </div>

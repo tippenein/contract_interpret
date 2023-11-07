@@ -20,23 +20,27 @@ export const Help: React.FC<HelpProps> = ({ handleCopy, copySuccess, setCopySucc
   const stacksExample = 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-oracle-v2-2'
   const handleButtonClick = async (text: string) => {
     await handleCopy(text);
-    setCopySuccess(text); // Set copySuccess to the copied text
+    setCopySuccess(text);
   };
   return (
     <div style={{width: '100%', margin: '20px', padding: '20px', border: '1px solid #ddd', borderRadius: '5px'}}>
-      <h2>Example Contracts</h2>
-      <p><strong>Ethereum Contract with Source:</strong></p>
-      <code>{ethExample}</code>
-      <button onClick={() => handleButtonClick(ethExample)}>
-        <CopyIcon />
-      </button>
-      {copySuccess === ethExample && <span>Copied!</span>}
-      <p><strong>Stacks Contract:</strong></p>
-      <code>{stacksExample}</code>
-      <button onClick={() => handleButtonClick(stacksExample)}>
-        <CopyIcon />
-      </button>
-      {copySuccess === stacksExample && <span>Copied!</span>}
+      <h2 className="mb-6">Supported blockchains include Stacks and Ethereum</h2>
+      <div className="mb-2">
+        <p><strong>Stacks Contract</strong></p>
+        <span className="p-2 rounded bg-white text-black">{stacksExample}</span>
+        <button onClick={() => handleButtonClick(stacksExample)}>
+          <CopyIcon />
+        </button>
+        {copySuccess === stacksExample && <span>Copied!</span>}
+      </div>
+      <div className="mb-2">
+        <p><strong>Ethereum Contract</strong></p>
+        <span className="p-2 rounded bg-white text-black">{ethExample}</span>
+        <button onClick={() => handleButtonClick(ethExample)}>
+          <CopyIcon />
+        </button>
+        {copySuccess === ethExample && <span>Copied!</span>}
+      </div>
     </div>
   );
 };
