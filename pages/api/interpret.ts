@@ -26,6 +26,7 @@ const getContractSourceCode = async (res: any, contractAddress: any) => {
       // Send a GET request to Etherscan API
       const response = await axios.get(etherscanUrl);
 
+      const notFound = `No valid contract found at the address '${contractAddress}'`;
       // Check if the request was successful
       if (response.status === 200) {
         const data = response.data;
@@ -35,10 +36,10 @@ const getContractSourceCode = async (res: any, contractAddress: any) => {
           await kv.set(contractAddress, sourceCode)
           return sourceCode;
         } else {
-          res.status(404).json({ error: "Failed to find contract's source code"});
+          res.status(400).json({ error: notFound});
         }
       } else {
-        res.status(404).json({ error: "Failed to find contract"});
+        res.status(response.status).json({ error: notFound});
       }
     } catch (error: any) {
       res.status(500).json({ error: `Error: ${error.message}`});;
