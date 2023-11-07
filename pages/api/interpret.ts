@@ -9,6 +9,8 @@ const { apiKey: openaiApiKey } = process.env;
 
 // example with compiled source https://etherscan.io/address/0x2ec705d306b51e486b1bc0d6ebee708e0661add1#code
 
+const USE_OPENAI_CACHE = true
+
 const getContractSourceCode = async (res, contractAddress) => {
   const cachedCode = await kv.get(contractAddress)
   if (cachedCode) {
@@ -43,12 +45,12 @@ const getContractSourceCode = async (res, contractAddress) => {
   }
 };
 
-const extractSourceCode = (inputText) => {
+const extractSourceCode = (inputText: string): string => {
   // Split the input text into lines
   const lines = inputText.split('\n');
 
   // Initialize an empty array to store lines of source code
-  const sourceCodeLines = [];
+  const sourceCodeLines: string[] = [];
 
   // Iterate through the lines
   for (const line of lines) {
@@ -71,13 +73,13 @@ const interpret = async (contractAddress, sourceCode) => {
 
   const cachedInterpretation = await kv.get(interpretedKey)
 
-  if (cachedInterpretation) {
+  if (cachedInterpretation && USE_OPENAI_CACHE) {
     console.log("using cached interpretation")
     return cachedInterpretation;
   } else {
     const systemPrompt = "You are a web3 developer skilled in explaining complex smart contracts in natural language";
     // Define the prompt for OpenAI
-    const prompt = `Please interpret the following Solidity contract source code:\n\n${sourceCode}`;
+    const prompt = `Please interpret the following Solidity contract source code:\n\n${sourceCode}\n\nPlease respond in markdown format`;
     try {
       // Initialize the OpenAI client
       const openai = new OpenAI({

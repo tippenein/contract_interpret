@@ -1,7 +1,13 @@
 "use client"
 
 import Head from "next/head";
+import React from 'react';
 import { useReducer, useState } from "react";
+
+interface ResponseData {
+  sourceCode: string;
+  interpretation: string;
+}
 
 export default function Home() {
   const [contractAddress, setContractAddress] = useState('');
@@ -12,7 +18,7 @@ export default function Home() {
   const [error, setError] = useState('');
 
 
-  const handleFormSubmit = async (e) => {
+  const handleFormSubmit = async (e: any) => {
     e.preventDefault()
 
     setLoading(true);
@@ -28,7 +34,7 @@ export default function Home() {
         },
       });
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json() as ResponseData;
         console.log('Data received:', data);
 
         setSourceCode(data.sourceCode);
@@ -36,7 +42,7 @@ export default function Home() {
       } else {
         const errorData = await response.json();
 
-        setError(errorData);
+        setError(errorData as string);
         console.error('API Error:', errorData);
       }
     } catch (error) {
@@ -63,9 +69,11 @@ export default function Home() {
               placeholder="Enter contract address"
               className="text-black px-4 py-2"
               value={contractAddress}
-              onChange={(e) =>
-                setContractAddress(e.target.value)
-              }
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const v = e.target as HTMLInputElement
+                console.log(v)
+                setContractAddress(v.value)
+              }}
             />
             <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4"
               type="submit"
@@ -81,13 +89,18 @@ export default function Home() {
           {interpretation && (
             <div>
               <h2>Interpretation:</h2>
-              <p className="bg-slate-100 text-black font-sans rounded p-6 whitespace-pre-wrap">{interpretation}</p>
+              <article className="bg-slate-100 text-black font-sans rounded p-6 prose lg:prose-xl whitespace-pre-wrap">
+                {interpretation}
+              </article>
             </div>
           )}
         </div>
         {sourceCode && (
           <div class-name="container mx-auto">
-            <button className="text-green-500 underline" onClick={() => setShowSourceCode(!showSourceCode)}>Toggle source code</button>
+            <button className="text-green-500 underline"
+              onClick={() => setShowSourceCode(!showSourceCode)}
+            >Toggle source code
+            </button>
             <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-lg lg:flex">
               {showSourceCode && (
                 <div>
