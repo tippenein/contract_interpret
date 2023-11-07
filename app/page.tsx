@@ -3,10 +3,10 @@
 import Head from "next/head";
 import React from 'react';
 import { useReducer, useState } from "react";
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
-
+let ReactMarkdown: React.ComponentType<{ children: string }> | undefined;
+import('react-markdown').then((module) => {
+  ReactMarkdown = module.default || module;
+});
 
 interface ResponseData {
   sourceCode: string;
@@ -120,7 +120,7 @@ export default function Home() {
                   {interpretation && (
                     <div>
                       <article className="bg-slate-100 text-black font-sans rounded p-6 prose">
-                      <ReactMarkdown>{interpretation}</ReactMarkdown>
+                      {ReactMarkdown && <ReactMarkdown>{interpretation}</ReactMarkdown>}
                       </article>
                     </div>
                   )}
@@ -130,9 +130,7 @@ export default function Home() {
               {activeTab === 'sourceCode' && sourceCode && (
                 <div className="container flex mx-auto">
                   <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-lg lg:flex">
-                  <SyntaxHighlighter language="javascript" style={solarizedlight}>
-                    {sourceCode}
-                  </SyntaxHighlighter>
+                    <pre>{sourceCode}</pre>
                   </div>
                 </div>
               )}
