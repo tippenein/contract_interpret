@@ -7,23 +7,96 @@ let ReactMarkdown: React.ComponentType<{ children: string }> | undefined;
 import('react-markdown').then((module) => {
   ReactMarkdown = module.default || module;
 });
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+const CopyIcon = () => (
+  <svg className="h-8 w-8 text-white" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <rect x="8" y="8" width="12" height="12" rx="2" />
+    <path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2" />
+  </svg>
+);
 
 interface ResponseData {
   sourceCode: string;
   interpretation: string;
+  blockchain: string;
 }
 interface ErrorResponse {
   error: string;
 }
 
+const syntaxFor = (b: string) => {
+  if (b === "ethereum") {
+    return "javascript";
+  } else if (b === "stacks") {
+    return "lisp";
+  } else {
+    return "javascript"; // default case
+  }
+}
+
+declare global {
+  interface Navigator {
+    clipboard: {
+      writeText(newClipText: string): Promise<void>;
+      // Add any other clipboard functions you need here
+    };
+  }
+}
+
+interface HelpProps {
+  handleCopy: (text: string) => Promise<void>;
+  copySuccess: string;
+  setCopySuccess: (value: string) => void;
+}
+
+const Help: React.FC<HelpProps> = ({ handleCopy, copySuccess, setCopySuccess }) => {
+  const ethExample = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
+  const stacksExample = 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-oracle-v2-2'
+  const handleButtonClick = async (text: string) => {
+    await handleCopy(text);
+    setCopySuccess(text); // Set copySuccess to the copied text
+  };
+  return (
+    <div style={{width: '100%', margin: '20px', padding: '20px', border: '1px solid #ddd', borderRadius: '5px'}}>
+      <h2>Example Contracts</h2>
+      <p><strong>Ethereum Contract with Source:</strong></p>
+      <code>{ethExample}</code>
+      <button onClick={() => handleButtonClick(ethExample)}>
+        <CopyIcon />
+      </button>
+      {copySuccess === ethExample && <span>Copied!</span>}
+      <p><strong>Stacks Contract:</strong></p>
+      <code>{stacksExample}</code>
+      <button onClick={() => handleButtonClick(stacksExample)}>
+        <CopyIcon />
+      </button>
+      {copySuccess === stacksExample && <span>Copied!</span>}
+    </div>
+  );
+};
+
 export default function Home() {
+  const [copySuccess, setCopySuccess] = useState('');
   const [contractAddress, setContractAddress] = useState('');
   const [sourceCode, setSourceCode] = useState('');
   const [interpretation, setInterpretation] = useState('');
+  const [blockchain, setBlockchain] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('interpretation');
 
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess('Copied!');
+      setTimeout(() => setCopySuccess(''), 2000); // Clear the message after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
 
   const handleFormSubmit = async (e: any) => {
     e.preventDefault()
@@ -47,6 +120,7 @@ export default function Home() {
 
         setSourceCode(data.sourceCode);
         setInterpretation(data.interpretation);
+        setBlockchain(data.blockchain);
       } else {
         const errorData = await response.json() as ErrorResponse;
         console.log(errorData.error)
@@ -58,6 +132,7 @@ export default function Home() {
       setError('Server error');
     }
 
+    setContractAddress('');
     setLoading(false);
   };
 
@@ -72,7 +147,7 @@ export default function Home() {
       <div className="z-10 max-w-5xl w-full items-center justify-center flex flex-col text-lg lg:flex">
         <h1 className="font-mono mb-4">Contract Interpreter</h1>
         <form onSubmit={handleFormSubmit} className="font-mono">
-          <div className="flex"> {/* Add this */}
+          <div className="flex">
             <input
               type="text"
               placeholder="Enter contract address"
@@ -92,6 +167,7 @@ export default function Home() {
           </div>
         </form>
       </div>
+      {!interpretation && (<Help copySuccess={copySuccess} handleCopy={handleCopy} setCopySuccess={setCopySuccess} />)}
       <div className="flex p-24 justify-center items-center">
         <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-lg lg:flex">
           {loading && <p>Loading...</p>}
@@ -130,7 +206,9 @@ export default function Home() {
               {activeTab === 'sourceCode' && sourceCode && (
                 <div className="container flex mx-auto">
                   <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-lg lg:flex">
-                    <pre>{sourceCode}</pre>
+                  <SyntaxHighlighter language={syntaxFor(blockchain.toLowerCase())} style={solarizedlight}>
+                    {sourceCode}
+                  </SyntaxHighlighter>
                   </div>
                 </div>
               )}
