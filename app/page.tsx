@@ -16,7 +16,7 @@ interface ResponseData {
   sourceCode: string;
   interpretation: string;
   blockchain: string;
-  contractAddress: string;
+  requestedContractAddress: string;
 }
 interface ErrorResponse {
   error: string;
@@ -39,6 +39,7 @@ export default function Home() {
   const [sourceCode, setSourceCode] = useState('');
   const [interpretation, setInterpretation] = useState('');
   const [blockchain, setBlockchain] = useState('');
+  const [requestedContractAddress, setRequestedContractAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('interpretation');
@@ -76,6 +77,7 @@ export default function Home() {
         setSourceCode(data.sourceCode);
         setInterpretation(data.interpretation);
         setBlockchain(data.blockchain);
+        setRequestedContractAddress(data.requestedContractAddress);
       } else {
         const errorData = await response.json() as ErrorResponse;
         console.log(errorData.error)
@@ -124,7 +126,7 @@ export default function Home() {
       </div>
       {!interpretation && (<Help copySuccess={copySuccess} handleCopy={handleCopy} setCopySuccess={setCopySuccess} />)}
       {interpretation && (
-        <h2 className="font-mono text-white font-semibold m-6">{contractAddress}</h2>
+        <h2 className="font-mono text-white font-semibold m-6">{requestedContractAddress}</h2>
       )}
       <div className="flex p-12 justify-center items-center">
         {loading && <p>Loading...</p>}
@@ -163,10 +165,14 @@ export default function Home() {
 
               {activeTab === 'sourceCode' && sourceCode && (
                 <div className="container flex mx-auto">
-                  <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-lg lg:flex">
-                  <SyntaxHighlighter language={syntaxFor(blockchain.toLowerCase())} style={solarizedlight}>
-                    {sourceCode}
-                  </SyntaxHighlighter>
+                  <div className="items-center justify-between font-mono text-lg lg:flex">
+                    <SyntaxHighlighter
+                      showLineNumbers={true}
+                      language={syntaxFor(blockchain.toLowerCase())}
+                      style={solarizedlight}
+                    >
+                      {sourceCode.toString()}
+                    </SyntaxHighlighter>
                   </div>
                 </div>
               )}
