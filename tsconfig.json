@@ -3,7 +3,7 @@
     "lib": [
       "ESNext", "dom", "dom.iterable"
     ],
-    "module": "esnext",
+    "module": "nodenext",
     "target": "esnext",
     // "bun-types" is the important part
     "types": [

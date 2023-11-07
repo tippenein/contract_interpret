@@ -69,10 +69,9 @@ export default function Home() {
               placeholder="Enter contract address"
               className="text-black px-4 py-2"
               value={contractAddress}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                const v = e.target as HTMLInputElement
-                console.log(v)
-                setContractAddress(v.value)
+              onChange={(e: any) => {
+                const { target } = e
+                setContractAddress(target.value)
               }}
             />
             <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4"

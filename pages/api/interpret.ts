@@ -1,6 +1,7 @@
 import axios from 'axios';
 import OpenAI from 'openai';
 import { kv } from "@vercel/kv";
+import Error from 'next/error';
 
 const { apiKey: etherscanApiKey } = process.env;
 const { apiKey: openaiApiKey } = process.env;
@@ -11,7 +12,7 @@ const { apiKey: openaiApiKey } = process.env;
 
 const USE_OPENAI_CACHE = true
 
-const getContractSourceCode = async (res, contractAddress) => {
+const getContractSourceCode = async (res: any, contractAddress: any) => {
   const cachedCode = await kv.get(contractAddress)
   if (cachedCode) {
     console.log("cached code", cachedCode)
@@ -39,7 +40,7 @@ const getContractSourceCode = async (res, contractAddress) => {
       } else {
         res.status(404).json({ error: "Failed to find contract"});
       }
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ error: `Error: ${error.message}`});;
     }
   }
@@ -67,7 +68,7 @@ const extractSourceCode = (inputText: string): string => {
   return sourceCode;
 };
 
-const interpret = async (contractAddress, sourceCode) => {
+const interpret = async (res: any, contractAddress:any, sourceCode: any) => {
   // key for fetching a cached openai interpretation
   const interpretedKey = "intrp-" + contractAddress;
 
@@ -100,14 +101,14 @@ const interpret = async (contractAddress, sourceCode) => {
       const interpretation = response.choices[0].message.content;
       kv.set(interpretedKey, interpretation)
       return interpretation
-    } catch (error) {
-      throw Error(`Server error: ${error.message}`);
+    } catch (error: any) {
+      res.status(500).json({ error: `Server error: ${error.message}` });
     }
 
   }
 }
 
-async function handler(req, res) {
+async function handler(req: any, res: any) {
   const { address: contractAddress } = req.body;
   if (!contractAddress) {
     res.status(400).json({ error: 'Contract address is required' });
@@ -120,10 +121,10 @@ async function handler(req, res) {
     const sourceCode = extractSourceCode(rawSource)
     console.log("after source code")
 
-    const interpretation = await interpret(contractAddress, sourceCode)
+    const interpretation = await interpret(res, contractAddress, sourceCode)
     console.log("after interpretation")
     res.status(200).json({ sourceCode, interpretation });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ error: `Server error: ${error.message}` });
   }
 }
