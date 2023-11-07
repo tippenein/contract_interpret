@@ -10,13 +10,7 @@ import('react-markdown').then((module) => {
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-const CopyIcon = () => (
-  <svg className="h-8 w-8 text-white" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-    <path stroke="none" d="M0 0h24v24H0z"/>
-    <rect x="8" y="8" width="12" height="12" rx="2" />
-    <path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2" />
-  </svg>
-);
+import {Help} from '../components/Help';
 
 interface ResponseData {
   sourceCode: string;
@@ -37,46 +31,6 @@ const syntaxFor = (b: string) => {
   }
 }
 
-declare global {
-  interface Navigator {
-    clipboard: {
-      writeText(newClipText: string): Promise<void>;
-      // Add any other clipboard functions you need here
-    };
-  }
-}
-
-interface HelpProps {
-  handleCopy: (text: string) => Promise<void>;
-  copySuccess: string;
-  setCopySuccess: (value: string) => void;
-}
-
-const Help: React.FC<HelpProps> = ({ handleCopy, copySuccess, setCopySuccess }) => {
-  const ethExample = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
-  const stacksExample = 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-oracle-v2-2'
-  const handleButtonClick = async (text: string) => {
-    await handleCopy(text);
-    setCopySuccess(text); // Set copySuccess to the copied text
-  };
-  return (
-    <div style={{width: '100%', margin: '20px', padding: '20px', border: '1px solid #ddd', borderRadius: '5px'}}>
-      <h2>Example Contracts</h2>
-      <p><strong>Ethereum Contract with Source:</strong></p>
-      <code>{ethExample}</code>
-      <button onClick={() => handleButtonClick(ethExample)}>
-        <CopyIcon />
-      </button>
-      {copySuccess === ethExample && <span>Copied!</span>}
-      <p><strong>Stacks Contract:</strong></p>
-      <code>{stacksExample}</code>
-      <button onClick={() => handleButtonClick(stacksExample)}>
-        <CopyIcon />
-      </button>
-      {copySuccess === stacksExample && <span>Copied!</span>}
-    </div>
-  );
-};
 
 export default function Home() {
   const [copySuccess, setCopySuccess] = useState('');
