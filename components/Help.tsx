@@ -1,3 +1,5 @@
+import React from 'react';
+import { useState } from "react";
 import {CopyIcon} from './CopyIcon';
 
 declare global {
@@ -9,15 +11,19 @@ declare global {
   }
 }
 
-interface HelpProps {
-  handleCopy: (text: string) => Promise<void>;
-  copySuccess: string;
-  setCopySuccess: (value: string) => void;
-}
-
-export const Help: React.FC<HelpProps> = ({ handleCopy, copySuccess, setCopySuccess }) => {
+export const Help = () => {
+  const [copySuccess, setCopySuccess] = useState('');
   const ethExample = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
   const stacksExample = 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-oracle-v2-2'
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess('Copied!');
+      setTimeout(() => setCopySuccess(''), 2000); // Clear the message after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
   const handleButtonClick = async (text: string) => {
     await handleCopy(text);
     setCopySuccess(text);

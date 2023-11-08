@@ -34,7 +34,6 @@ const syntaxFor = (b: string) => {
 
 
 export default function Home() {
-  const [copySuccess, setCopySuccess] = useState('');
   const [contractAddress, setContractAddress] = useState('');
   const [sourceCode, setSourceCode] = useState('');
   const [interpretation, setInterpretation] = useState('');
@@ -44,15 +43,6 @@ export default function Home() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('interpretation');
 
-  const handleCopy = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopySuccess('Copied!');
-      setTimeout(() => setCopySuccess(''), 2000); // Clear the message after 2 seconds
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-    }
-  };
 
   const handleFormSubmit = async (e: any) => {
     e.preventDefault()
@@ -124,7 +114,7 @@ export default function Home() {
           </div>
         </form>
       </div>
-      {!interpretation && (<Help copySuccess={copySuccess} handleCopy={handleCopy} setCopySuccess={setCopySuccess} />)}
+      {!interpretation && (<Help />)}
       {interpretation && (
         <h2 className="font-mono text-white font-semibold m-6">{requestedContractAddress}</h2>
       )}
