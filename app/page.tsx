@@ -90,15 +90,15 @@ export default function Home() {
         <meta name="description" content="Smart contract interpreter" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-center flex flex-col text-lg lg:flex">
+      <main className="flex flex-col items-center p-24 w-full">
+      <div className="w-full max-w-5xl flex flex-col items-center">
         <h1 className="font-mono font-semibold mb-6">Contract Interpreter</h1>
         <form onSubmit={handleFormSubmit} className="font-mono">
-          <div className="flex">
+          <div className="flex justify-center">
             <input
               type="text"
               placeholder="Contract address"
-              className="flex-grow text-black px-4 py-2 h-12"
+              className="text-black px-4 py-2 h-12 w-full max-w-md"
               value={contractAddress}
               onChange={(e: any) => {
                 const { target } = e
@@ -114,7 +114,7 @@ export default function Home() {
           </div>
         </form>
       </div>
-      {!interpretation && (<Help />)}
+      {!interpretation && <div className="w-full flex justify-center"><Help /></div>}
       {interpretation && (
         <h2 className="font-mono text-white font-semibold m-6">{requestedContractAddress}</h2>
       )}

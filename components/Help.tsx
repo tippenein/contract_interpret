@@ -29,23 +29,28 @@ export const Help = () => {
     setCopySuccess(text);
   };
   return (
-    <div style={{width: '100%', margin: '20px', padding: '20px', border: '1px solid #ddd', borderRadius: '5px'}}>
-      <h2 className="mb-6">Supported blockchains include Stacks and Ethereum</h2>
+    <div className="w-full m-2 p-2 shadow-inner rounded-md text-center">
+      <h2 className="mb-6">Supported blockchains currently included: Stacks and Ethereum</h2>
+      <h3 className="mb-6">Examples</h3>
       <div className="mb-2">
-        <p><strong>Stacks Contract</strong></p>
-        <span className="p-2 rounded bg-white text-black">{stacksExample}</span>
-        <button onClick={() => handleButtonClick(stacksExample)}>
-          <CopyIcon />
-        </button>
-        {copySuccess === stacksExample && <span>Copied!</span>}
+        <p className="font-bold">Stacks Contract</p>
+        <div className="flex justify-center items-center space-x-2">
+          <span className="text-xs p-2 rounded bg-white text-black">{stacksExample}</span>
+          <button onClick={() => handleButtonClick(stacksExample)}>
+            <CopyIcon />
+          </button>
+          {copySuccess === stacksExample && <span className="text-sm text-green-600">Copied!</span>}
+        </div>
       </div>
       <div className="mb-2">
-        <p><strong>Ethereum Contract</strong></p>
-        <span className="p-2 rounded bg-white text-black">{ethExample}</span>
-        <button onClick={() => handleButtonClick(ethExample)}>
-          <CopyIcon />
-        </button>
-        {copySuccess === ethExample && <span>Copied!</span>}
+        <p className="font-bold">Ethereum Contract</p>
+        <div className="flex justify-center items-center space-x-2">
+          <span className="text-xs p-2 rounded bg-white text-black">{ethExample}</span>
+          <button onClick={() => handleButtonClick(ethExample)}>
+            <CopyIcon />
+          </button>
+          {copySuccess === ethExample && <span className="text-sm text-green-600">Copied!</span>}
+        </div>
       </div>
     </div>
   );
