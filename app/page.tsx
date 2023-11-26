@@ -92,7 +92,7 @@ export default function Home() {
       </Head>
       <main className="flex flex-col items-center p-24 w-full">
       <div className="w-full max-w-5xl flex flex-col items-center">
-        <h1 className="font-mono font-semibold mb-6">Contract Interpreter</h1>
+        <h1 className="font-mono font-semibold mb-6"><a href="/">Contract Interpreter</a></h1>
         <form onSubmit={handleFormSubmit} className="font-mono">
           <div className="flex justify-center">
             <input
@@ -118,10 +118,10 @@ export default function Home() {
       {interpretation && (
         <h2 className="font-mono text-white font-semibold m-6">{requestedContractAddress}</h2>
       )}
-      <div className="p-6 justify-center items-center">
+      <div className="flex p-12 justify-center items-center">
         {loading && <p>Loading...</p>}
         {error && <p>{error}</p>}
-        <div className="max-w-5xl w-full items-center justify-between font-mono text-lg lg:flex">
+        <div className="items-center justify-between font-mono text-lg lg:flex">
           {interpretation && sourceCode && (
             <div>
               <div className="flex border-b">

@@ -75,7 +75,6 @@ const getContractSourceCode = async (res: any, contractAddress: any) => {
   const cachedCode = await kv.get(contractAddress)
   const blockchain = identifyTransactionId(contractAddress)
   if (cachedCode) {
-    console.log("cached code", cachedCode)
     return { rawSource: cachedCode, blockchain };
   } else {
     let rawSource;
