@@ -134,7 +134,7 @@ const interpret = async (res: any, contractAddress:any, sourceCode: any) => {
   } else {
     const systemPrompt = "You are a web3 developer skilled in explaining complex smart contracts in natural language";
     // Define the prompt for OpenAI
-    const prompt = `Please interpret the following Solidity contract source code:\n\n${sourceCode}\n\nPlease respond in markdown format`;
+    const prompt = `Please interpret the following smart contract source code:\n\n${sourceCode}\n\nPlease respond in markdown format`;
     try {
       // Initialize the OpenAI client
       const openai = new OpenAI({
