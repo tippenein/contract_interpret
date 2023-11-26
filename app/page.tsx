@@ -118,7 +118,7 @@ export default function Home() {
       {interpretation && (
         <h2 className="font-mono text-white font-semibold m-6">{requestedContractAddress}</h2>
       )}
-      <div className="flex p-12 justify-center items-center">
+      <div className="p-6 justify-center items-center">
         {loading && <p>Loading...</p>}
         {error && <p>{error}</p>}
         <div className="max-w-5xl w-full items-center justify-between font-mono text-lg lg:flex">
@@ -139,10 +139,10 @@ export default function Home() {
                 </button>
               </div>
 
+              {loading && <p>Loading...</p>}
+              {error && <p>{error}</p>}
               {activeTab === 'interpretation' && (
                 <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-lg lg:flex">
-                  {loading && <p>Loading...</p>}
-                  {error && <p>{error}</p>}
                   {interpretation && (
                     <div>
                       <article className="bg-slate-100 text-black font-sans rounded p-6 prose">
@@ -154,8 +154,7 @@ export default function Home() {
               )}
 
               {activeTab === 'sourceCode' && sourceCode && (
-                <div className="container flex mx-auto">
-                  <div className="items-center justify-between font-mono text-lg lg:flex">
+                  <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-lg lg:flex">
                     <SyntaxHighlighter
                       showLineNumbers={true}
                       language={syntaxFor(blockchain.toLowerCase())}
@@ -164,7 +163,6 @@ export default function Home() {
                       {sourceCode}
                     </SyntaxHighlighter>
                   </div>
-                </div>
               )}
             </div>
           )}
