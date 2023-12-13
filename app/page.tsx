@@ -43,7 +43,12 @@ export default function Home() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('interpretation');
 
-
+  const stripMarkdown = (input: string): string => {
+    if (input.substring(0, 11) === '```markdown') {
+      return input.substring(11);
+    }
+    return input;
+  }
   const handleFormSubmit = async (e: any) => {
     e.preventDefault()
 
@@ -146,7 +151,7 @@ export default function Home() {
                   {interpretation && (
                     <div>
                       <article className="bg-slate-100 text-black font-sans rounded p-6 prose">
-                      {ReactMarkdown && <ReactMarkdown>{interpretation}</ReactMarkdown>}
+                      {ReactMarkdown && <ReactMarkdown>{stripMarkdown(interpretation)}</ReactMarkdown>}
                       </article>
                     </div>
                   )}

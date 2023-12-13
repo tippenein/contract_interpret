@@ -8,7 +8,7 @@ const { apiKey: openaiApiKey } = process.env;
 
 // example with compiled source https://etherscan.io/address/0x2ec705d306b51e486b1bc0d6ebee708e0661add1#code
 
-const USE_OPENAI_CACHE = false
+const USE_OPENAI_CACHE = true
 enum Blockchain {
   Ethereum = 'Ethereum',
   Stacks = 'Stacks',
@@ -138,7 +138,7 @@ const interpret = async (res: any, contractAddress:any, sourceCode: any) => {
 
       // Call the OpenAI to interpret the code
       const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4",
         // stream: true,
         messages: [
           { role: "system", content: systemPrompt },
