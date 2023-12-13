@@ -8,7 +8,7 @@ const { apiKey: openaiApiKey } = process.env;
 
 // example with compiled source https://etherscan.io/address/0x2ec705d306b51e486b1bc0d6ebee708e0661add1#code
 
-const USE_OPENAI_CACHE = true
+const USE_OPENAI_CACHE = false
 enum Blockchain {
   Ethereum = 'Ethereum',
   Stacks = 'Stacks',
@@ -17,12 +17,8 @@ enum Blockchain {
 
 function identifyTransactionId(id: string): Blockchain {
   if (id.length === 42) { // 2 characters for '0x' + 40 characters for the address
-    // example Eth contract with source
-    // 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
     return Blockchain.Ethereum;
   } else if (id.includes('.')) {
-    // example Stacks contract
-    // SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-oracle-v2-2
     return Blockchain.Stacks;
   } else {
     return Blockchain.Unknown;
@@ -142,7 +138,7 @@ const interpret = async (res: any, contractAddress:any, sourceCode: any) => {
 
       // Call the OpenAI to interpret the code
       const response = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-3.5-turbo",
         // stream: true,
         messages: [
           { role: "system", content: systemPrompt },
