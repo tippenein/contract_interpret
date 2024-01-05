@@ -29,13 +29,17 @@ const getStacksSource = async (res: any, contractAddress: any) => {
   const hiroUrl = `https://api.mainnet.hiro.so/extended/v1/contract/${contractAddress}`
 
   // Send a GET request to Etherscan API
+  console.log("before url")
   const response = await axios.get(hiroUrl);
+  console.log("after url")
 
   const notFound = `No valid contract found at the address '${contractAddress}'`;
   if (response.status === 200) {
     const data = response.data;
     if (data.source_code) {
       const sourceCode = data.source_code;
+
+      console.log("source")
       return sourceCode;
     } else {
       res.status(400).json({ error: notFound});
@@ -102,6 +106,7 @@ const extractSourceCode = (inputText: string): string => {
   // Initialize an empty array to store lines of source code
   const sourceCodeLines: string[] = [];
 
+  console.log(",lines")
   // Iterate through the lines
   for (const line of lines) {
     // Check if the line contains the end comment
@@ -121,6 +126,7 @@ const interpret = async (res: any, contractAddress:any, sourceCode: any) => {
   // key for fetching a cached openai interpretation
   const interpretedKey = "intrp-" + contractAddress;
 
+  console.log("in interpret")
   const cachedInterpretation = await kv.get(interpretedKey)
 
   if (cachedInterpretation && USE_OPENAI_CACHE) {
@@ -145,12 +151,13 @@ const interpret = async (res: any, contractAddress:any, sourceCode: any) => {
           { role: "user", content: prompt },
         ],
       });
-
+      console.log("response", response)
       // Get the interpretation
       const interpretation = response.choices[0].message.content;
       kv.set(interpretedKey, interpretation)
       return interpretation
     } catch (error: any) {
+      console.log("error", error)
       res.status(500).json({ error: `Server error: ${error.message}` });
     }
 
