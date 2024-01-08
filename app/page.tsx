@@ -1,7 +1,7 @@
 "use client"
 
 import Head from "next/head";
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useReducer, useState } from "react";
 let ReactMarkdown: React.ComponentType<{ children: string }> | undefined;
 import('react-markdown').then((module) => {
@@ -11,6 +11,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import {Help} from '../components/Help';
+import { useSearchParams, useRouter } from "next/navigation";
 
 interface ResponseData {
   sourceCode: string;
@@ -43,18 +44,18 @@ export default function Home() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('interpretation');
 
+  const router = useRouter();
+  const searchParams = useSearchParams()
+
+
   const stripMarkdown = (input: string): string => {
     if (input.substring(0, 11) === '```markdown') {
       return input.substring(11);
     }
     return input;
   }
-  const handleFormSubmit = async (e: any) => {
-    e.preventDefault()
 
-    setLoading(true);
-    setError('');
-
+  const interpret = async (contractAddress: string) => {
     try {
       const response = await fetch("/api/interpret", {
         method: "POST",
@@ -83,10 +84,28 @@ export default function Home() {
       console.log(error)
       setError('Server error');
     }
+  }
+  const handleFormSubmit = async (e: any) => {
+    e.preventDefault()
+
+    setLoading(true);
+    setError('');
+
+    interpret(contractAddress)
 
     setContractAddress('');
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (searchParams?.get('q')) {
+      const q = searchParams.get('q');
+      if (q) {
+        interpret(q);
+      }
+    }
+  }, [])
+
 
   return (
     <div>
