@@ -2,13 +2,15 @@ import axios from 'axios';
 import OpenAI from 'openai';
 import { kv } from "@vercel/kv";
 import Error from 'next/error';
+import { extractSourceCode } from './utils';
+import { makePrompt, makeSystemPrompt } from './prompt';
 
 const { apiKey: etherscanApiKey } = process.env;
 const { apiKey: openaiApiKey } = process.env;
 
 // example with compiled source https://etherscan.io/address/0x2ec705d306b51e486b1bc0d6ebee708e0661add1#code
 
-const USE_OPENAI_CACHE = true
+const USE_OPENAI_CACHE = false
 enum Blockchain {
   Ethereum = 'Ethereum',
   Stacks = 'Stacks',
@@ -99,29 +101,6 @@ const getContractSourceCode = async (res: any, contractAddress: any) => {
   }
 };
 
-const extractSourceCode = (inputText: string): string => {
-  // Split the input text into lines
-  const lines = inputText.split('\n');
-
-  // Initialize an empty array to store lines of source code
-  const sourceCodeLines: string[] = [];
-
-  console.log(",lines")
-  // Iterate through the lines
-  for (const line of lines) {
-    // Check if the line contains the end comment
-    if (line.includes("GNU GENERAL PUBLIC LICENSE")) {
-      break;
-    }
-    sourceCodeLines.push(line);
-  }
-
-  // Combine the source code lines into a single string
-  const sourceCode = sourceCodeLines.join('\n');
-
-  return sourceCode;
-};
-
 const interpret = async (res: any, contractAddress:any, sourceCode: any) => {
   // key for fetching a cached openai interpretation
   const interpretedKey = "intrp-" + contractAddress;
@@ -133,9 +112,6 @@ const interpret = async (res: any, contractAddress:any, sourceCode: any) => {
     console.log("using cached interpretation")
     return cachedInterpretation;
   } else {
-    const systemPrompt = "You are a web3 developer skilled in explaining complex smart contracts in natural language";
-    // Define the prompt for OpenAI
-    const prompt = `Please interpret the following smart contract source code:\n\n${sourceCode}\n\nPlease respond in markdown format`;
     try {
       // Initialize the OpenAI client
       const openai = new OpenAI({
@@ -147,8 +123,8 @@ const interpret = async (res: any, contractAddress:any, sourceCode: any) => {
         model: "gpt-4",
         // stream: true,
         messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: prompt },
+          { role: "system", content: makeSystemPrompt() },
+          { role: "user", content: makePrompt(sourceCode)},
         ],
       });
       console.log("response", response)
