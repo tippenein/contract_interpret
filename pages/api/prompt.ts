@@ -1,7 +1,13 @@
+// 10k token max, so we limit source code to 9.5k
 const MAX_TOKENS = 9500
 
 export const makePrompt = (sourceCode: string): string => {
-    return `Give a synopsis of the general functionality described in the following smart contract source code:\n\n${limitSourceCodeTokens(sourceCode)}\n\nPlease respond in markdown format and be concise.`;
+    const limitedSourceCode = limitSourceCodeTokens(sourceCode);
+    return (
+       `Give a synopsis of the general functionality described in the following smart contract source code:\n\n` +
+       `${limitedSourceCode}\n\n` +
+       `Please respond in markdown format and be concise. Don't explain the individual error codes, constants, etc.. Explain the overall meaning and function of the contract`
+    );
 }
 
 

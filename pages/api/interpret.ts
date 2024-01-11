@@ -12,9 +12,9 @@ const { apiKey: openaiApiKey } = process.env;
 
 const USE_OPENAI_CACHE = false
 enum Blockchain {
-  Ethereum = 'Ethereum',
-  Stacks = 'Stacks',
-  Unknown = 'Unknown'
+  Ethereum = 'ethereum',
+  Stacks = 'stacks',
+  Unknown = 'unknown'
 }
 
 function identifyTransactionId(id: string): Blockchain {
