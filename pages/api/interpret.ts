@@ -5,8 +5,8 @@ import Error from 'next/error';
 import { extractSourceCode } from './utils';
 import { makePrompt, makeSystemPrompt } from './prompt';
 
-const { apiKey: etherscanApiKey } = process.env;
-const { apiKey: openaiApiKey } = process.env;
+const { ETHERSCAN_API_KEY: etherscanApiKey } = process.env;
+const { OPENAI_API_KEY: openaiApiKey } = process.env;
 
 // example with compiled source https://etherscan.io/address/0x2ec705d306b51e486b1bc0d6ebee708e0661add1#code
 
