@@ -8,6 +8,8 @@ import { makePrompt, makeSystemPrompt } from './prompt';
 const { ETHERSCAN_API_KEY: etherscanApiKey } = process.env;
 const { OPENAI_API_KEY: openaiApiKey } = process.env;
 
+export const maxDuration = 60; // This function can run for a maximum of 60 seconds
+
 // example with compiled source https://etherscan.io/address/0x2ec705d306b51e486b1bc0d6ebee708e0661add1#code
 
 const USE_OPENAI_CACHE = false
